@@ -9,18 +9,19 @@ function print_help_and_exit {
     echo "Error: You must provide a platform name as argument"
     echo ""
     echo "Usage: ./install.sh [platform]   where [platform] can be"
-    echo "  win           Install OpenPLC on Windows over Cygwin"
-    echo "  linux         Install OpenPLC on a Debian-based Linux distribution"
-    echo "  docker        Install OpenPLC in a Docker container"
-    echo "  rpi           Install OpenPLC on a Raspberry Pi"
-    echo "  opi           Install OpenPLC on a Orange Pi"
-    echo "  neuron        Install OpenPLC on a UniPi Neuron PLC"
-    echo "  unipi         Install OpenPLC on a Raspberry Pi with UniPi v1.1 PLC"
-    echo "  custom        Skip all specific package installation and tries to install"
-    echo "                OpenPLC assuming your system already has all dependencies met."
-    echo "                This option can be useful if you're trying to install OpenPLC"
-    echo "                on an unsuported Linux platform or had manually installed"
-    echo "                all the dependency packages before."
+    echo "  win                Install OpenPLC on Windows over Cygwin"
+    echo "  linux              Install OpenPLC on a Debian-based Linux distribution"
+    echo "  docker             Install OpenPLC in a Docker container with dependencies for Linux I/O"
+    echo "  docker-standalone  Install OpenPLC in a Docker container to be used stand alone"
+    echo "  rpi                Install OpenPLC on a Raspberry Pi"
+    echo "  opi                Install OpenPLC on a Orange Pi"
+    echo "  neuron             Install OpenPLC on a UniPi Neuron PLC"
+    echo "  unipi              Install OpenPLC on a Raspberry Pi with UniPi v1.1 PLC"
+    echo "  custom             Skip all specific package installation and tries to install"
+    echo "                     OpenPLC assuming your system already has all dependencies met."
+    echo "                     This option can be useful if you're trying to install OpenPLC"
+    echo "                     on an unsuported Linux platform or had manually installed"
+    echo "                     all the dependency packages before."
     echo ""
     exit 1
 }
@@ -337,7 +338,7 @@ elif [ "$1" == "linux" ]; then
     finalize_install linux
 
 elif [ "$1" == "docker" ]; then
-    echo "Installing OpenPLC on Linux inside Docker"
+    echo "Install OpenPLC in a Docker container with dependencies for Linux I/O"
     linux_install_deps
     install_py_deps
     install_all_libs
@@ -347,6 +348,15 @@ elif [ "$1" == "docker" ]; then
         mkdir /docker_persistent
     fi
     finalize_install linux
+
+elif [ "$1" == "docker-standalone" ]; then
+    echo "Install OpenPLC in a Docker container to be used stand alone"
+    # Create persistent folder for docker
+    if [[ ! -d "/docker_persistent" ]]
+    then
+        mkdir /docker_persistent
+    fi
+    docker build -t openplc:v3 . && docker run -it --rm --privileged -p 8080:8080 openplc:v3
 
 elif [ "$1" == "rpi" ]; then
     echo "Installing OpenPLC on Raspberry Pi"
